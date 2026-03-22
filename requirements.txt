@@ -1,0 +1,29 @@
+# Django
+Django>=4.2,<6.0
+djangorestframework>=3.14
+django-cors-headers>=4.0
+djangorestframework-simplejwt>=5.3
+
+# Database
+psycopg2-binary>=2.9
+
+# Data Processing
+pandas>=2.0
+numpy>=1.24
+akshare>=1.12
+
+# Task Queue
+celery>=5.3
+redis>=5.0
+
+# API & HTTP
+requests>=2.31
+
+# Development
+python-dotenv>=1.0
+ipython>=8.0
+
+# Testing
+pytest>=7.0
+pytest-django>=4.5
+pytest-cov>=4.0
