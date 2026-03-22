@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantTrade - 量化交易系统</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; }
+        .header { background: #1a73e8; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 1.5rem; }
+        .nav { display: flex; gap: 1rem; }
+        .nav a { color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 4px; }
+        .nav a:hover { background: rgba(255,255,255,0.1); }
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .card { background: white; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .card h2 { font-size: 1.2rem; margin-bottom: 1rem; color: #333; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+        .stat { background: #f8f9fa; padding: 1rem; border-radius: 8px; text-align: center; }
+        .stat-value { font-size: 1.8rem; font-weight: bold; color: #1a73e8; }
+        .stat-label { color: #666; font-size: 0.9rem; margin-top: 0.5rem; }
+        .table { width: 100%; border-collapse: collapse; }
+        .table th, .table td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #eee; }
+        .table th { background: #f8f9fa; font-weight: 600; color: #333; }
+        .table tr:hover { background: #f8f9fa; }
+        .btn { padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: #1a73e8; color: white; }
+        .btn-success { background: #34a853; color: white; }
+        .btn-danger { background: #ea4335; color: white; }
+        .status { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; }
+        .status-active { background: #e6f4ea; color: #34a853; }
+        .status-stopped { background: #fce8e6; color: #ea4335; }
+        .status-draft { background: #e8f0fe; color: #1a73e8; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; }
+        .tabs { display: flex; border-bottom: 1px solid #ddd; margin-bottom: 1rem; }
+        .tab { padding: 0.75rem 1.5rem; cursor: pointer; border-bottom: 2px solid transparent; }
+        .tab.active { border-bottom-color: #1a73e8; color: #1a73e8; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📈 QuantTrade</h1>
+        <div class="nav">
+            <a href="#dashboard">仪表盘</a>
+            <a href="#strategies">策略</a>
+            <a href="#trading">交易</a>
+            <a href="#backtest">回测</a>
+            <a href="#portfolio">组合</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="card">
+            <h2>📊 账户概览</h2>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value">¥100,000</div>
+                    <div class="stat-label">总资产</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">¥80,000</div>
+                    <div class="stat-label">可用资金</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">¥20,000</div>
+                    <div class="stat-label">持仓市值</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" style="color: #34a853;">+5.2%</div>
+                    <div class="stat-label">总收益</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Strategies Section -->
+        <div id="strategies" class="card">
+            <h2>🎯 策略管理</h2>
+            <button class="btn btn-primary" onclick="showCreateStrategy()">+ 新建策略</button>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>策略名称</th>
+                        <th>状态</th>
+                        <th>信号数</th>
+                        <th>胜率</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="strategies-list">
+                    <tr>
+                        <td>MA5 MA20 金叉策略</td>
+                        <td><span class="status status-active">运行中</span></td>
+                        <td>156</td>
+                        <td>62.5%</td>
+                        <td>
+                            <button class="btn btn-danger">停止</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>RSI 超买超卖策略</td>
+                        <td><span class="status status-stopped">已停止</span></td>
+                        <td>89</td>
+                        <td>55.3%</td>
+                        <td>
+                            <button class="btn btn-success">启动</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Trading Section -->
+        <div id="trading" class="card">
+            <h2>💰 持仓监控</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>股票代码</th>
+                        <th>股票名称</th>
+                        <th>持仓数量</th>
+                        <th>成本价</th>
+                        <th>当前价</th>
+                        <th>市值</th>
+                        <th>盈亏</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>000001</td>
+                        <td>平安银行</td>
+                        <td>1000</td>
+                        <td>¥12.50</td>
+                        <td>¥13.20</td>
+                        <td>¥13,200</td>
+                        <td style="color: #34a853;">+5.6%</td>
+                    </tr>
+                    <tr>
+                        <td>600519</td>
+                        <td>贵州茅台</td>
+                        <td>100</td>
+                        <td>¥1,800</td>
+                        <td>¥1,850</td>
+                        <td>¥185,000</td>
+                        <td style="color: #34a853;">+2.8%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Backtest Section -->
+        <div id="backtest" class="card">
+            <h2>🔬 回测分析</h2>
+            <div class="grid">
+                <div>
+                    <h3>创建回测</h3>
+                    <div class="form-group">
+                        <label>选择策略</label>
+                        <select>
+                            <option>MA5 MA20 金叉策略</option>
+                            <option>RSI 超买超卖策略</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>开始日期</label>
+                        <input type="date" value="2024-01-01">
+                    </div>
+                    <div class="form-group">
+                        <label>结束日期</label>
+                        <input type="date" value="2024-12-31">
+                    </div>
+                    <div class="form-group">
+                        <label>初始资金</label>
+                        <input type="number" value="100000">
+                    </div>
+                    <button class="btn btn-primary">开始回测</button>
+                </div>
+                <div>
+                    <h3>回测结果</h3>
+                    <div class="stats">
+                        <div class="stat">
+                            <div class="stat-value">¥156,800</div>
+                            <div class="stat-label">最终资金</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">+56.8%</div>
+                            <div class="stat-label">总收益率</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">1.85</div>
+                            <div class="stat-label">夏普比率</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">-12.5%</div>
+                            <div class="stat-label">最大回撤</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Portfolio Section -->
+        <div id="portfolio" class="card">
+            <h2>📁 投资组合</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>组合名称</th>
+                        <th>总资金</th>
+                        <th>可用资金</th>
+                        <th>持仓市值</th>
+                        <th>日收益</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>主组合</td>
+                        <td>¥100,000</td>
+                        <td>¥80,000</td>
+                        <td>¥20,000</td>
+                        <td style="color: #34a853;">+0.8%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // 简单的标签页切换
+        document.querySelectorAll('.nav a').forEach(link => {
+            link.addEventListener('click', e => {
+                e.preventDefault();
+                const target = link.getAttribute('href');
+                document.querySelector(target).scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
+        // 模拟API调用
+        const API_BASE = 'http://localhost:8000/api';
+        
+        async function loadStrategies() {
+            try {
+                const response = await fetch(`${API_BASE}/strategies/`, {
+                    headers: { 'Authorization': 'Bearer YOUR_TOKEN' }
+                });
+                const data = await response.json();
+                console.log('Strategies:', data);
+            } catch (e) {
+                console.log('API not available, using demo data');
+            }
+        }
+
+        async function loadPositions() {
+            try {
+                const response = await fetch(`${API_BASE}/trading/positions/`, {
+                    headers: { 'Authorization': 'Bearer YOUR_TOKEN' }
+                });
+                const data = await response.json();
+                console.log('Positions:', data);
+            } catch (e) {
+                console.log('API not available, using demo data');
+            }
+        }
+
+        // 加载数据
+        loadStrategies();
+        loadPositions();
+    </script>
+</body>
+</html>
